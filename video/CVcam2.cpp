@@ -3,8 +3,27 @@
 #include <stdio.h>
 using namespace cv;
 // A Simple Camera Capture Framework
-int main() {
+/**
+ * Get the number of camera available
+ */
+int countCameras()
+{
+   VideoCapture temp_camera;
+   int maxTested = 10;
+   for (int i = 0; i < maxTested; i++){
+     VideoCapture temp_camera(i);
+     bool res = (!temp_camera.isOpened());
+     temp_camera.release();
+     if (res)
+     {
+       return i;
+     }
+   }
+   return maxTested;
+}
 
+int main() {
+	printf("%d\n", countCameras());
     CvCapture* capture = cvCaptureFromCAM( CV_CAP_ANY );
     if ( !capture ) {
         fprintf( stderr, "ERROR: capture is NULL \n" );
@@ -30,6 +49,7 @@ int main() {
             IplImage* img= cvCreateImage(size, IPL_DEPTH_16S, 1);
             img = frame;
              cvSaveImage("matteo.jpg", img);
+		cvSaveImage("matteo.png", img);
                                             }
      if ( (cvWaitKey(10) & 255) == 27 ) break;
     }
