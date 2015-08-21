@@ -1,5 +1,6 @@
 //SSL-Client.c
 #include <stdio.h>
+#include <iostream>
 #include <errno.h>
 #include <unistd.h>
 #include <malloc.h>
@@ -11,6 +12,10 @@
 #include <openssl/err.h>
  
 #define FAIL    -1
+
+#include "SSL-Server.h"
+
+using namespace std;
 
 int OpenConnection(const char *hostname, int port)
 {   int sd;
@@ -51,26 +56,26 @@ SSL_CTX* InitCTX(void)
     }
     return ctx;
 }
-
+/*
 void ShowCerts(SSL* ssl)
 {   X509 *cert;
     char *line;
  
-    cert = SSL_get_peer_certificate(ssl); /* get the server's certificate */
+    cert = SSL_get_peer_certificate(ssl); /* get the server's certificate *//*
     if ( cert != NULL )
     {
         printf("Server certificates:\n");
         line = X509_NAME_oneline(X509_get_subject_name(cert), 0, 0);
         printf("Subject: %s\n", line);
-        free(line);       /* free the malloc'ed string */
+        free(line);       /* free the malloc'ed string *//*
         line = X509_NAME_oneline(X509_get_issuer_name(cert), 0, 0);
         printf("Issuer: %s\n", line);
-        free(line);       /* free the malloc'ed string */
-        X509_free(cert);     /* free the malloc'ed certificate copy */
+        free(line);       /* free the malloc'ed string *//*
+        X509_free(cert);     /* free the malloc'ed certificate copy *//*
     }
     else
         printf("No certificates.\n");
-}
+}*/
 
 int runAsClient(int count, char *strings[])
 {   SSL_CTX *ctx;
