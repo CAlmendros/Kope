@@ -102,46 +102,52 @@ void ShowCerts(SSL* ssl)
         printf("No certificates.\n");
 }
 
-void Servlet(SSL* ssl) /* Serve the connection -- threadable */
+int Servlet(SSL* ssl) /* Serve the connection -- threadable */
 {   char buf[1024];
     char reply[1024];
     int sd, bytes;
     const char* HTMLecho="<html><body><pre>%s</pre></body></html>\n\n";
- 
+    int code = 0;
     if ( SSL_accept(ssl) == FAIL ) ERR_print_errors_fp(stderr);
     else{
         ShowCerts(ssl);        /* get any certificates */
-        bytes = SSL_read(ssl, buf, sizeof(buf)); /* get request */
-        if ( bytes > 0 ){
-            buf[bytes] = 0;
-            printf("Client msg: \"%s\"\n", buf);
-            sprintf(reply, HTMLecho, buf);   /* construct reply */
-            SSL_write(ssl, reply, strlen(reply)); /* send reply */
+        while(true){
+            if(code == 1) break;
+            bytes = SSL_read(ssl, buf, sizeof(buf)); /* get request */
+            if ( bytes > 0 ){
+                buf[bytes] = 0;
+                if(strcmp(buf,"quit") == 0) code = 1;
+                printf("Client msg: \"%s\"\n", buf);
+                //sprintf(reply, HTMLecho, buf);   /* construct reply */
+                //SSL_write(ssl, reply, strlen(reply)); /* send reply */
         }
         else
             ERR_print_errors_fp(stderr);
+
+        }
     }
     sd = SSL_get_fd(ssl);
     SSL_free(ssl);
     close(sd);
+    return code;
 }
 
-int runAsServer(int count, char *strings[]){   
+int runAsServer(char port[]){   
     SSL_CTX *ctx;
     int server;
-    char *portnum;
+    char *portnum = port;
  	
     if(!isRoot()){
         printf("This program must be run as root/sudo user!!\n");
         exit(0);
-    }
+    }/*
     if ( count != 2 ){
         printf("Usage: %s <portnum>\n", strings[0]);
         exit(0);
-    }
+    }*/
     SSL_library_init();
  
-    portnum = strings[1];
+    //portnum = strings[1];
     ctx = InitServerCTX();
     LoadCertificates(ctx, "../certs/both.pem", "../certs/both.pem");
     server = OpenListener(atoi(portnum));
@@ -154,7 +160,8 @@ int runAsServer(int count, char *strings[]){
         printf("Connection: %s:%d\n",inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
         ssl = SSL_new(ctx);              /* get new SSL state with context */
         SSL_set_fd(ssl, client);      /* set connection socket to SSL state */
-        Servlet(ssl);
+        int rcode = Servlet(ssl);
+        if(rcode == 1) break;
     }
     close(server);
     SSL_CTX_free(ctx);

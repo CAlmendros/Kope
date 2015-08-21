@@ -8,6 +8,6 @@ void LoadCertificates(SSL_CTX* ctx, char* CertFile, char* KeyFile);
 
 void ShowCerts(SSL* ssl);
 
-void Servlet(SSL* ssl);
+int Servlet(SSL* ssl);
 
-int runAsServer(int count, char *strings[]);
+int runAsServer(char port[]);

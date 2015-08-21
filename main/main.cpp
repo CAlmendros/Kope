@@ -33,14 +33,19 @@ int main(){
     }
 
     if(opt == '1'){
-        char *arr[2];
-        arr[1] = "5000";
-        runAsServer(2,arr);
+        
+	char port[10];
+	printf("Port: ");
+        scanf("%s", &port);
+        runAsServer(port);
     }else{
-        char *arr[3];
-        arr[1] = "127.0.0.1";
-        arr[2] = "5000";
-        runAsClient(3,arr);
+        char ip[20];
+        char port[10];
+        printf("IP: ");
+        scanf("%s", &ip);
+        printf("Port: ");
+        scanf("%s", &port);
+        runAsClient(ip, port);
     }
 
 }
